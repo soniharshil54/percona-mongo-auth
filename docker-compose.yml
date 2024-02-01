@@ -4,7 +4,7 @@ services:
   mongo-percona:
     build:
       context: mongo/
-    image: nexus-mongo
+    image: mongo-percona-image
     restart: on-failure
     ports:
       - 30002:27017
