@@ -1,0 +1,67 @@
+version: '3.7'
+name: nexus-backend-deps-dev
+services:
+  mongo-percona:
+    build:
+      context: mongo/
+    image: nexus-mongo
+    restart: on-failure
+    ports:
+      - 30002:27017
+    networks:
+      - percona-node-network
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.stats()"]
+      interval: 10s
+      timeout: 5s
+      retries: 5  
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: demo
+      MONGO_INITDB_ROOT_PASSWORD: demo123
+      MONGO_INITDB_DATABASE: testDB
+    volumes:
+      - "./mongodata:/data/db"
+    command: bash -c "mongod --enableEncryption --encryptionKeyFile /mongodb-keyfile --bind_ip_all;"
+  
+  percona-mongo-express:
+    image: mongo-express
+    restart: on-failure
+    ports:
+      - 8088:8081
+    depends_on:
+      mongo-percona:
+        condition: service_healthy
+    networks:
+      - percona-node-network
+    environment:
+      # ME_CONFIG_MONGODB_ADMINUSERNAME: demo
+      # ME_CONFIG_MONGODB_ADMINPASSWORD: demo123
+      ME_CONFIG_MONGODB_SERVER: mongo-percona
+
+  api-service:
+    build:
+      context: api/
+      dockerfile: Dockerfile
+    healthcheck:
+      test: curl -f http://localhost:3000/api/healthcheck || exit 1
+      interval: 10s
+      timeout: 30s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      mongo-percona:
+        condition: service_healthy  
+    environment:
+      - PORT=3009
+    image: api-service:latest
+    restart: always
+    ports:
+      - 3009:3009
+    networks:
+      - percona-node-network
+    command: npm start    
+
+networks:
+  percona-node-network:
+    name: percona-node-network
+    driver: bridge
