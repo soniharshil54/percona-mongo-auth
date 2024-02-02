@@ -23,13 +23,6 @@ services:
     volumes:
       - "./mongodata:/data/db"
       # - "./mongo/mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh" # Mount your script here
-    command: >
-      bash -c "
-               if [ \"$$MONGO_AUTH_ENABLED\" = \"true\" ]; then
-                mongod --auth --enableEncryption --encryptionKeyFile /mongodb-keyfile --bind_ip_all;
-               else
-                mongod --enableEncryption --encryptionKeyFile /mongodb-keyfile --bind_ip_all;
-               fi"
 
   percona-mongo-express:
     image: mongo-express
@@ -43,8 +36,6 @@ services:
       - percona-node-network
     environment:
       ME_CONFIG_MONGODB_URL: mongodb://mongoadmin2:mongoadmin2@mongo-percona:27017/nexusDB?authSource=admin
-      ME_CONFIG_MONGODB_AUTH_USERNAME: mongoadmin2
-      ME_CONFIG_MONGODB_AUTH_PASSWORD: mongoadmin2
       ME_CONFIG_MONGODB_AUTH_DATABASE: admin
 
   api-service:
