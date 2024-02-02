@@ -8,8 +8,8 @@ const port = process.env.PORT || 3000;
 app.use(bodyParser.json());
 
 // MongoDB and Mongoose setup
-const mongoDB = 'mongodb://mongo-percona:27017/testDB';
-// const mongoDB = 'mongodb://demo:demo123@mongo-percona:27017/testDB';
+// const mongoDB = 'mongodb://mongo-percona:27017/nexusDB';
+const mongoDB = 'mongodb://nexusUser:X3H44wQA8c@mongo-percona:27017/nexusDB?authSource=admin';
 mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 mongoose.Promise = global.Promise;
 const db = mongoose.connection;
